@@ -51,8 +51,10 @@ jobs:
 
       # 使用 runners shell 运行单个命令
       - name: request and build index.md
-        run: |
-          yarn start
+        run: yarn start
+
+      - name: Deploy
+        with:
           publish_branch: main
           publish_dir: ./
           external_repository: ${{ github.repository_owner }}/vsou.github.io.git
