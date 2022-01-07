@@ -1,0 +1,64 @@
+# name属性用来指定这个工作流的名字， 这是帮助您开始使用 Actions 的基本工作流程
+
+name: 各卫健委疫情实时通报
+
+# 控制工作流何时运行，这个部分用来指定能够触发工作流执行的事件
+on:
+  # 在推送或拉取请求事件上触发工作流，但仅针对主分支
+  # 当对分支main进行push操作的时候，这个工作流就被触发了
+    push:
+      branches: [ main ]
+#  release:
+#    types: [ released ]
+  #pull_request:
+  #  branches: [ main ]
+  schedule:
+    # 定时任务
+    #  ┌───────────── minute (0 - 59)
+    #  │ ┌───────────── hour (0 - 23)
+    #  │ │ ┌───────────── day of the month (1 - 31)
+    #  │ │ │ ┌───────────── month (1 - 12 or JAN-DEC)
+    #  │ │ │ │ ┌───────────── day of the week (0 - 6 or SUN-SAT)
+    #  │ │ │ │ │
+    #  │ │ │ │ │
+    #  │ │ │ │ │
+    #  * * * * *
+    # 从零分中开始每隔30分钟执行一次
+    - cron: '0/30 * * * *'
+
+  # 允许您从“操作”选项卡手动运行此工作流
+  workflow_dispatch:
+
+# 工作流是由一个或多个的jobs构成的，在jobs里来说明要交给GitHub aciton执行的任务
+jobs:
+  # 这个jobs中的一个任务，名字叫build(随便怎么取)
+  build:
+    # 用来指定这个任务在什么操作系统上跑(服务器是GitHub免费提供的)
+    runs-on: ubuntu-latest
+
+    # 指出这个build任务的步骤
+    steps:
+      # 在 $GITHUB_WORKSPACE 下签出您的存储库，以便您的工作可以访问它
+      - uses: actions/checkout@v2
+
+      # 使用 runners shell 运行单个命令
+      #- name: Run a one-line script
+      #  run: echo Hello, world!
+
+      # 使用 runners shell 运行一组命令
+      #- name: Run a multi-line script
+      #  run: |
+      #    echo Add other actions to build,
+      #    echo test, and deploy your project.
+
+      # 使用 runners shell 运行单个命令
+      - name: request and build index.md
+        run: |
+          yarn start
+          git config user.name 'github action'
+          git config user.email 'jsoncode@users.noreply.github.com'
+#          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/vsou.github.io.git
+          git add .
+          git commit -m "run : yarn start & update index.md"
+          git push

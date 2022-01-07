@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport" content="width=device-width">
+</head>
+<body>
+<div class="container">
+    <div class="select">
+        <select>
+            <option>选择指定的卫健委</option>
+        </select>
+    </div>
+    <div id="content"></div>
+</div>
+<script>
+    let select = document.querySelector('select')
+    let content = document.getElementById('content')
+    let data = []
+    fetch('./data.json')
+        .then(res => res.json())
+        .then(res => {
+            data = res;
+            renderAll()
+            renderSelect()
+        })
+
+    function renderItem(item) {
+        let html = '';
+        html += '<h2><a href="' + item.parentUrl + '" target="_blank">' + item.name + '</a></h2>'
+        html += '<h4><a href="' + item.url + '" target="_blank">' + item.title + '</a></h4>'
+        if (item.content) {
+            item.content.map(item => {
+                html += '<p>' + item + '</p>'
+            })
+        }
+        return html;
+    }
+
+    function renderAll() {
+        let html = [];
+        data.forEach(item => {
+            html.push(renderItem(item))
+        })
+
+        content.innerHTML = html.join('<hr>')
+    }
+
+    function renderSelect() {
+        let option = '<option value="1">全部</option>';
+        data.forEach(item => {
+            option += '<option value="' + item.name + '">' + item.name + '</option>'
+        })
+        select.innerHTML = option
+    }
+
+    select.addEventListener('change', () => {
+        let value = select.value;
+        switch (value) {
+            case '1':
+                renderAll()
+                break;
+            default:
+                let index = data.findIndex(item => item.name === value)
+                if (index > -1) {
+                    content.innerHTML = renderItem(data[index])
+                }
+                break;
+        }
+    })
+</script>
+<style>
+    body {
+        margin: 0;
+    }
+
+    .container {
+        padding: 20px;
+        width: 1000px;
+        margin: 0 auto;
+    }
+
+    a {
+        text-decoration: none;
+        color: #0969da;
+    }
+
+    .select select {
+        height: 44px;
+        width: 100%;
+        border: 1px solid #000;
+        border-radius: 4px;
+    }
+
+    p {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+</style>
+
+</body>
+</html>
