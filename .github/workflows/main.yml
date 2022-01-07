@@ -54,7 +54,7 @@ jobs:
         run: |
           yarn start
           git config user.name 'github action'
-          git config user.email 'jsoncode@users.noreply.github.com'
+          git config user.email 'vsou@users.noreply.github.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com:vsou/vsou.github.io.git
           git add .
           git commit -m "run : yarn start & update index.md"
