@@ -6,10 +6,8 @@ name: 各卫健委疫情实时通报
 on:
   # 在推送或拉取请求事件上触发工作流，但仅针对主分支
   # 当对分支main进行push操作的时候，这个工作流就被触发了
-  #  push:
-  #    branches: [ main ]
-  release:
-    types: [ released ]
+  push:
+    branches: [ main ]
   #pull_request:
   #  branches: [ main ]
   schedule:
