@@ -6,8 +6,8 @@ name: 各卫健委疫情实时通报
 on:
   # 在推送或拉取请求事件上触发工作流，但仅针对主分支
   # 当对分支main进行push操作的时候，这个工作流就被触发了
-  push:
-    branches: [ main ]
+#  push:
+#    branches: [ main ]
   #pull_request:
   #  branches: [ main ]
   schedule:
@@ -53,9 +53,9 @@ jobs:
       - name: request and build index.md
         run: |
           yarn start
-          git config user.name 'github action'
+          git config user.name 'vsou'
           git config user.email 'vsou@users.noreply.github.com'
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com:vsou/vsou.github.io.git
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git add .
           git commit -m "run : yarn start & update index.md"
           git push
