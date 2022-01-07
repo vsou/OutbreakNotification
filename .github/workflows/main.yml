@@ -51,14 +51,11 @@ jobs:
 
       # 使用 runners shell 运行单个命令
       - name: request and build index.md
-        run: yarn start
-
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: main
-          publish_dir: ./
-          external_repository: ${{ github.repository_owner }}/vsou.github.io.git
-          user_name: 'vsou'
-          user_email: 'vsou@users.noreply.github.com'
+        run: |
+          yarn start
+          git config user.name 'github action'
+          git config user.email 'vsou@users.noreply.github.com'
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com:vsou/vsou.github.io.git
+          git add .
+          git commit -m "run : yarn start & update index.md"
+          git push
