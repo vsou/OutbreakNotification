@@ -6,8 +6,8 @@ name: 各卫健委疫情实时通报
 on:
   # 在推送或拉取请求事件上触发工作流，但仅针对主分支
   # 当对分支main进行push操作的时候，这个工作流就被触发了
-  push:
-    branches: [ main ]
+#  push:
+#    branches: [ main ]
   #pull_request:
   #  branches: [ main ]
   schedule:
@@ -57,6 +57,7 @@ jobs:
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
+          # 教程：https://github.com/peaceiris/actions-gh-pages/tree/v3#%EF%B8%8F-deploy-to-external-repository-external_repository
           deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           external_repository: vsou/vsou.github.io
           #          publish_branch: main  # default: gh-pages # 默认分支在这里配置：https://github.com/username/username.github.io/settings/pages
