@@ -108,14 +108,16 @@ export const getQueryString = (queryObj) => {
 }
 
 export const getLastInfo = function (opt) {
-    const {name, url, listReg, contentReg} = opt;
+    const {name, sort, url, listReg, contentReg, timeReg} = opt;
     return action({
         url,
     }).then(({data: {body: listBody}}) => {
         let resultList = listBody.match(listReg)
         let obj = {
             name,
+            sort,
             parentUrl: url,
+            updateTime: new Date().getTime()
         }
         if (listBody.includes(`setTimeout("location.replace(location.href.split(\\"#\\")[0])",2000);`)) {
             return new Promise((resolve, reject) => {
@@ -134,22 +136,52 @@ export const getLastInfo = function (opt) {
             url: obj.url
         }).then(({data: {body: contentBody}}) => {
             if (contentBody) {
+                contentBody = contentBody.replace(/<table>[\s\S]+?<\/table>/ig, '')
                 let contentResult = contentBody.match(contentReg)
+                let time = contentBody.match(timeReg)
                 if (contentResult) {
                     let c = contentResult[1]
                     c = c.replace(/<span[^<>]*>|<\/span>|\s*<br\s*\/?>\s*|\s*style="[^"]*"/ig, '')
-                    c = c.replace(/\s*<p>\s*<\/p>\s*/ig, '')
-                    c = c.replace(/\s*<p>(&ensp;|&emsp;)*<\/p>\s*/ig, '')
+                    c = c.replace(/\s*<p>(\s|&ensp;|&emsp;)*<\/p>\s*/ig, '')
+                    c = c.replace(/\s*<section>(\s|&ensp;|&emsp;)*<\/section>\s*/ig, '')
                     c = c.trim()
                     let contentList = c.match(/<p[^<>]*>([\s\S]+?)<\/p>/ig)
                     if (contentList) {
                         contentList = contentList.map(item => item.match(/<p[^<>]*>([\s\S]+?)<\/p>/i)[1].trim())
                     } else {
-                        contentList = [c]
+                        contentList = c.match(/<section[^<>]*>([\s\S]+?)<\/section>/ig)
+                        if (contentList) {
+                            contentList = contentList.map(item => item.match(/<section[^<>]*>([\s\S]+?)<\/section>/i)[1].trim())
+                        } else {
+                            contentList = [c]
+                        }
                     }
                     obj.content = contentList
+                    if (obj.content.length > 5) {
+                        obj.content = obj.content.splice(0, 4)
+                        obj.content.push(`<a href="${obj.url}" target="_blank">更多信息直接访问卫健委官网🔗</a>`)
+                    }
+                    let firstLine = obj.content[0].replace(/（[^（）]{1,2}）|其中|来自/g, '')
+                    obj.tags = firstLine.match(/([^,\s，。（）()；、含]*)(\d+)例([^,\s，。（）()；、含]*)/g) || [];
+                    obj.tags = obj.tags.map((item, index) => {
+
+                        // 清除正则未匹配到的多余数据
+                        item = item.replace(/其中|来自/g, '')
+                        item = item.replace(/和新疆/g, '新疆')
+
+                        if (/本土|境外|疑似|无症状/.test(item) && index !== 0 && index !== obj.tags.length - 1) {
+                            return '<br/>' + item
+                        } else {
+                            return item;
+                        }
+                    }) || []
+
                 } else {
                     console.log('没有匹配到详情')
+                }
+
+                if (time) {
+                    obj.releaseTime = time[1].trim().replace(/<br\s*\/>|\n/g, '')
                 }
             } else {
                 console.log('内容为空')
@@ -166,6 +198,7 @@ export const buildFile = (list, dataPath, toPath) => {
         let oldPath = path.resolve(dataPath)
         let oldFile = [];
         let file = res.filter(item => item !== undefined)
+            .sort((a, b) => a.sort - b.sort)
 
         if (fs.existsSync(oldPath)) {
             oldFile = JSON.parse(fs.readFileSync(oldPath, {encoding: 'utf-8'}));

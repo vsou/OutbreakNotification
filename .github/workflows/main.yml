@@ -22,7 +22,9 @@ on:
     #  │ │ │ │ │
     #  * * * * *
     # 从零分中开始每隔30分钟执行一次
-    - cron: '0/30 * * * *'
+#    - cron: '0/2 * * * *'
+#    每个小时第一分钟时执行一次
+    - cron: '1 * * * *'
 
   # 允许您从“操作”选项卡手动运行此工作流
   workflow_dispatch:
@@ -38,6 +40,8 @@ jobs:
     steps:
       # 在 $GITHUB_WORKSPACE 下签出您的存储库，以便您的工作可以访问它
       - uses: actions/checkout@v2
+      - name: node run script
+        run: yarn start
 
       # 使用 runners shell 运行单个命令
       #- name: Run a one-line script
@@ -50,12 +54,10 @@ jobs:
       #    echo test, and deploy your project.
 
       # 使用 runners shell 运行单个命令
-      - name: request and build index.md
-        run: |
-          yarn start
-          git config user.name 'vsou'
-          git config user.email 'vsou@users.noreply.github.com'
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git add .
-          git commit -m "run : yarn start & update index.md"
-          git push
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          external_repository: vsou/vsou.github.io
+          publish_branch: main  # default: gh-pages
+          publish_dir: ./public

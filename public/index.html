@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>卫健委疫情通报</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+</head>
+<body>
+<div class="container">
+    <div class="select">
+        <select>
+            <option>选择指定的卫健委</option>
+        </select>
+    </div>
+    <div id="content"></div>
+</div>
+<script>
+    let select = document.querySelector('select')
+    let content = document.getElementById('content')
+    let data = []
+    fetch('./data.json?v=' + new Date().getTime())
+        .then(res => res.json())
+        .then(res => {
+            data = res;
+            renderAll()
+            renderSelect()
+        })
+
+    function renderItem(item) {
+        let html = '';
+        html += '<h2><a href="' + item.parentUrl + '" target="_blank">' + item.name + '🔗</a></h2>'
+        html += '<h6>官方发布时间：<a href="' + item.url + '" target="_blank">' + item.releaseTime + '🔗</a> 数据采集时间：' + dataFormat(item.updateTime) + '</h6>'
+        html += '<details><summary>' + item.title + '</summary>'
+        if (item.content) {
+            item.content.map(item => {
+                html += '<p>' + item + '</p>'
+            })
+        }
+        html += '</details>'
+        html += '<blockquot>' + item.tags.join('<br/>') + '<div class="copyMsg"></div></blockquot>'
+        return html;
+    }
+
+    function renderAll() {
+        let html = [];
+        data.forEach(item => {
+            html.push(renderItem(item))
+        })
+
+        content.innerHTML = html.join('')
+    }
+
+    function renderSelect() {
+        let option = '<option value="1">全部</option>';
+        data.forEach(item => {
+            option += '<option value="' + item.name + '">' + item.name + '</option>'
+        })
+        select.innerHTML = option
+    }
+
+    select.addEventListener('change', () => {
+        let value = select.value;
+        switch (value) {
+            case '1':
+                renderAll()
+                break;
+            default:
+                let index = data.findIndex(item => item.name === value)
+                if (index > -1) {
+                    content.innerHTML = renderItem(data[index])
+                }
+                break;
+        }
+    })
+    document.addEventListener('click', e => {
+        let el = e.target;
+        if (el.tagName === 'BLOCKQUOT') {
+            navigator.clipboard.writeText(el.innerText)
+            let copyMsg = el.querySelector('.copyMsg')
+            copyMsg.innerText = '复制成功'
+            copyMsg.style.visibility = 'visible';
+            setTimeout(() => {
+                copyMsg.innerText = ''
+                copyMsg.style.visibility = 'hidden';
+            }, 500)
+        }
+    })
+
+    function dataFormat(date) {
+        let d = new Date(date)
+
+        return `${d.getFullYear()}-${f(d.getMonth() + 1)}-${f(d.getDate())} ${f(d.getHours())}:${f(d.getMinutes())}`
+
+        function f(num) {
+            if (num < 10) {
+                return '0' + num
+            } else {
+                return num.toString()
+            }
+        }
+    }
+</script>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    .container {
+        padding: 15px;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    a {
+        text-decoration: none;
+        color: #0969da;
+    }
+
+    .select select {
+        height: 44px;
+        width: 100%;
+        border: 1px solid #000;
+        border-radius: 4px;
+    }
+
+    p {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    h6 {
+        font-size: 12px;
+    }
+
+    blockquot {
+        border-left: 5px solid #ff7a7a;
+        color: #2e2d2d;
+        padding: 10px 10px 10px 20px;
+        display: block;
+        background: rgba(255, 0, 0, .05);
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+    details {
+        display: block;
+    }
+
+    summary {
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .copyMsg {
+        visibility: hidden;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1;
+        background-color: rgba(255, 255, 255, .8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
+</style>
+
+</body>
+</html>
