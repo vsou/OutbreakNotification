@@ -4,6 +4,7 @@ import http from 'http'
 import path from 'path'
 import fs from 'fs'
 import puppeteer from 'puppeteer'
+// import os from 'os'
 
 export const action = async (options) => {
     if (!options.encoding) {
@@ -106,7 +107,7 @@ export const action = async (options) => {
 }
 
 export const browserGet = async (url, checkSelector, selector) => {
-    const browser = await puppeteer.launch({
+    const config = {
         headless: true, // 是否以”无头”的模式运行 chrome, 也就是不显示 UI， 默认为 true
         ignoreDefaultArgs: ['--enable-automation'],
         args: ['--start-maximized'],
@@ -115,7 +116,14 @@ export const browserGet = async (url, checkSelector, selector) => {
             height: 960
         },
         // devtools: true, // 是否为每个选项卡自动打开DevTools面板， 这个选项只有当 headless 设置为 false 的时候有效
-    })
+    };
+
+    // import os from 'os'
+    // 如果是win系统，直接使用默认浏览器
+    // if (/windows/i.test(os.type())) {
+    //     config.executablePath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+    // }
+    const browser = await puppeteer.launch(config)
     const page = await browser.newPage()
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36');
     await page.evaluateOnNewDocument(() => {
@@ -218,6 +226,7 @@ export const getLastInfo = function (opt) {
             name,
             sort,
             parentUrl: url,
+            tags: [],
             updateTime: new Date().getTime()
         }
         if (
@@ -276,7 +285,7 @@ export const getLastInfo = function (opt) {
                         obj.content.push(`<a href="${obj.url}" target="_blank">更多信息直接访问卫健委官网</a>`)
                     }
                     let firstLine = obj.content[0].replace(/（[^（）]{1,2}）|其中|来自/g, '')
-                    if (contentCallBack){
+                    if (contentCallBack) {
                         firstLine = contentCallBack(firstLine)
                     }
                     obj.tags = firstLine.match(/([^,\s，。（）()；、含]*)(\d+)例([^,\s，。（）()；、含]*)/g) || [];
