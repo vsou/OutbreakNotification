@@ -62,7 +62,7 @@ let list = [
         url: 'http://wsjkw.gd.gov.cn/zwyw_yqxx/index.html',
         listReg: /<div class="section list">\s*[\s\S]*?<a href="([^"]+)" title="(\d{4}年\d+月\d+日[^"]+)\s*"/i,
         contentReg: /<div class="content-content">([\s\S]+?)<\/div>/i,
-        timeReg: /<span class="cm-con">发布日期：\s*([^<>]+)\s*<\/span>/
+        timeReg: /<p class="margin_top15 c999999 text_cencer">时间：\s*([^<>&]+)?\s/
     }),
 
     getLastInfo({
