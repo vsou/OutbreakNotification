@@ -273,7 +273,7 @@ export const getLastInfo = function (opt) {
                     obj.content = contentList
                     if (obj.content.length > 2) {
                         obj.content = obj.content.splice(0, 2)
-                        obj.content.push(`<a href="${obj.url}" target="_blank">更多信息直接访问卫健委官网🔗</a>`)
+                        obj.content.push(`<a href="${obj.url}" target="_blank">更多信息直接访问卫健委官网</a>`)
                     }
                     let firstLine = obj.content[0].replace(/（[^（）]{1,2}）|其中|来自/g, '')
                     if (contentCallBack){
