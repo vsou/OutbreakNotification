@@ -63,6 +63,14 @@ let list = [
         listReg: /<div class="section list">\s*[\s\S]*?<a href="([^"]+)" title="(\d{4}年\d+月\d+日[^"]+)\s*"/i,
         contentReg: /<div class="content-content">([\s\S]+?)<\/div>/i,
         timeReg: /<span class="cm-con">发布日期：\s*([^<>]+)\s*<\/span>/
+    }),
+
+    getLastInfo({
+        name: '深圳市卫健委 疫情通报',
+        url: 'http://wjw.sz.gov.cn/yqxx/',
+        listReg: /<div class="wendangListC" style="padding-top:15px;">\s*[\s\S]*?<a href="([^"]+)"[^<>]*>\s*(\d{4}年\d+月\d+日[^<>]+)\s*<\/a>/i,
+        contentReg: /<div class="TRS_Editor">([\s\S]+?)<\/div>/i,
+        timeReg: /<span class="cm-con">发布日期：\s*([^<>]+)\s*<\/span>/
     })
 ]
 await buildFile(list, './public/data.json')
