@@ -72,7 +72,7 @@
                 break;
         }
     })
-    document.addEventListener('click', e => {
+    document.addEventListener('dblclick', e => {
         let el = e.target;
         if (el.tagName === 'BLOCKQUOT') {
             navigator.clipboard.writeText(el.innerText)
