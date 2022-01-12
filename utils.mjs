@@ -12,7 +12,7 @@ export const action = async (options) => {
     options.method = options?.method?.toUpperCase() || 'GET'
     return new Promise(resolve => {
         if (options.browserGet) {
-            browserGet(options.url, options.selector).then((html) => {
+            browserGet(options.url, options.checkSelector, options.selector).then((html) => {
                 resolve({
                     data: {
                         body: html,
@@ -105,7 +105,7 @@ export const action = async (options) => {
     })
 }
 
-export const browserGet = async (url, selector) => {
+export const browserGet = async (url, checkSelector, selector) => {
     const browser = await puppeteer.launch({
         headless: true, // 是否以”无头”的模式运行 chrome, 也就是不显示 UI， 默认为 true
         ignoreDefaultArgs: ['--enable-automation'],
@@ -125,7 +125,7 @@ export const browserGet = async (url, selector) => {
     });
     await page.goto(url)
     await page.waitForSelector('.banner')
-    let el = await page.$eval('body', e => e.outerHTML);
+    let el = await page.$eval(selector, e => e.outerHTML);
     await page.close()
     await browser.close()
     return el;
@@ -193,10 +193,23 @@ export const getQueryString = (queryObj) => {
 }
 
 export const getLastInfo = function (opt) {
-    const {name, sort, url, browserGet, listSelector, contentSelector, listReg, contentReg, timeReg} = opt;
+    const {
+        name,
+        sort,
+        url,
+        browserGet,
+        listCheckSelector,
+        contentCheckSelector,
+        listSelector,
+        contentSelector,
+        listReg,
+        contentReg,
+        timeReg
+    } = opt;
     return action({
         url,
         browserGet,
+        checkSelector: listCheckSelector,
         selector: listSelector,
     }).then(({data: {body: listBody, statusCode}}) => {
         let resultList = listBody.match(listReg)
@@ -232,6 +245,7 @@ export const getLastInfo = function (opt) {
         return action({
             url: obj.url,
             browserGet,
+            checkSelector: contentCheckSelector,
             selector: contentSelector,
         }).then(({data: {body: contentBody}}) => {
             if (contentBody) {
@@ -297,7 +311,6 @@ export const buildFile = (list, dataPath, toPath) => {
         let oldPath = path.resolve(dataPath)
         let oldFile = [];
         let file = res.filter(item => item !== undefined)
-            .sort((a, b) => a.sort - b.sort)
 
         if (fs.existsSync(oldPath)) {
             oldFile = JSON.parse(fs.readFileSync(oldPath, {encoding: 'utf-8'}));
