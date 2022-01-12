@@ -2,7 +2,7 @@
     {
         "name": "国家卫健委 疫情通报",
         "parentUrl": "http://www.nhc.gov.cn/xcs/yqtb/list_gzbd.shtml",
-        "updateTime": 1641972336872,
+        "updateTime": 1641973103784,
         "url": "http://www.nhc.gov.cn/xcs/yqtb/202201/ff13304174ea422a839fdc801d2c0a9d.shtml",
         "title": "截至1月11日24时新型冠状病毒肺炎疫情最新情况",
         "content": [
@@ -13,7 +13,7 @@
             "<a href=\"http://www.nhc.gov.cn/xcs/yqtb/202201/ff13304174ea422a839fdc801d2c0a9d.shtml\" target=\"_blank\">更多信息直接访问卫健委官网🔗</a>"
         ],
         "tags": [
-            "新疆生产建设兵团报告新增确诊病例221例",
+            "全国新增确诊病例221例",
             "<br/>境外输入病例55例",
             "上海20例",
             "广东20例",
@@ -46,7 +46,7 @@
     {
         "name": "北京市卫健委 疫情通报",
         "parentUrl": "http://wjw.beijing.gov.cn/xwzx_20031/rdxws/",
-        "updateTime": 1641972334463,
+        "updateTime": 1641973101774,
         "url": "http://wjw.beijing.gov.cn/xwzx_20031/rdxws/202201/t20220112_2589000.html",
         "title": "北京1月11日新增2例境外输入无症状感染者转确诊病例和2例境外输入无症状感染者",
         "content": [
@@ -63,7 +63,7 @@
     {
         "name": "上海市卫健委 疫情通报",
         "parentUrl": "https://wsjkw.sh.gov.cn/xwfb/index.html",
-        "updateTime": 1641972334365,
+        "updateTime": 1641973101777,
         "url": "https://wsjkw.sh.gov.cn/xwfb/20220112/c1c8caa3eea44378bed41de8d9de0df5.html",
         "title": "上海2022年1月11日，无新增本土新冠肺炎确诊病例 新增境外输入性新冠肺炎确诊病例20例 新增境外输入性无症状感染者1例 治愈出院12例",
         "content": [
@@ -90,7 +90,7 @@
     {
         "name": "天津市卫健委 疫情通报",
         "parentUrl": "http://wsjk.tj.gov.cn/XWZX6600/newyqfkdt/",
-        "updateTime": 1641972334392,
+        "updateTime": 1641973102652,
         "url": "http://wsjk.tj.gov.cn/ZTZL1/ZTZL750/YQFKZL9424/YQTB7440/202201/t20220112_5776535.html",
         "title": "2022年1月12日天津市新型冠状病毒肺炎疫情情况",
         "content": [
@@ -111,7 +111,7 @@
     {
         "name": "河南省卫健委 疫情通报",
         "parentUrl": "http://wsjkw.henan.gov.cn/ztzl/xxgzbdfyyqfk/yqtb/",
-        "updateTime": 1641972334595,
+        "updateTime": 1641973102833,
         "url": "http://wsjkw.henan.gov.cn/2022/01-12/2381282.html",
         "title": "截至2022年1月11日24时河南省新型冠状病毒肺炎疫情最新情况",
         "content": [
@@ -130,7 +130,7 @@
     {
         "name": "陕西省卫健委 疫情通报",
         "parentUrl": "http://sxwjw.shaanxi.gov.cn/sy/wjyw/",
-        "updateTime": 1641972334364,
+        "updateTime": 1641973102651,
         "url": "http://sxwjw.shaanxi.gov.cn/sy/wjyw/202201/t20220112_2207209.html",
         "title": "1月11日陕西新增8例本土确诊病例",
         "content": [
@@ -149,7 +149,7 @@
     {
         "name": "广东省卫健委 疫情通报",
         "parentUrl": "http://wsjkw.gd.gov.cn/zwyw_yqxx/index.html",
-        "updateTime": 1641972334271,
+        "updateTime": 1641973101575,
         "url": "http://wsjkw.gd.gov.cn/zwyw_yqxx/content/post_3757891.html",
         "title": "2022年1月12日广东省新冠肺炎疫情情况",
         "content": [

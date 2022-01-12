@@ -4,14 +4,17 @@ let list = [
     getLastInfo({
         name: '国家卫健委 疫情通报',
         browserGet: true,
-        listCheckSelector:'.banner', // 使用无界浏览器采集时，以此作为页面加载完成的标志
-        contentCheckSelector:'.banner',
+        listCheckSelector: '.banner', // 使用无界浏览器采集时，以此作为页面加载完成的标志
+        contentCheckSelector: '.banner',
         listSelector: 'body', // 使用无界浏览器时，以此作为采集的选择器盒子
         contentSelector: 'body',
         url: 'http://www.nhc.gov.cn/xcs/yqtb/list_gzbd.shtml',
         listReg: /<ul class="zxxx_list">\s*<li>\s*<a href="([^"]+)"[\s\S]*?title=['"]([^'"]+)['"]/i, // 匹配列表页第一项标题和链接
         contentReg: /<div class="con" id="xw_box">([\s\S]+?)<div class="fx fr">/i, // 匹配详情页面的详情内容。
         timeReg: /<span>发布时间：\s*([^<>\s]+)\s*<\/span>/i, // 发布时间匹配
+        contentCallBack(str) {
+            return str.replace(/和新疆生产建设兵团报告([^。；，()（）\-—])/, '全国$1')
+        }
     }),
 
     getLastInfo({

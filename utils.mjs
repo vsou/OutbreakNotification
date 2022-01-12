@@ -193,7 +193,7 @@ export const getQueryString = (queryObj) => {
 }
 
 export const getLastInfo = function (opt) {
-    const {
+    let {
         name,
         sort,
         url,
@@ -204,7 +204,8 @@ export const getLastInfo = function (opt) {
         contentSelector,
         listReg,
         contentReg,
-        timeReg
+        timeReg,
+        contentCallBack
     } = opt;
     return action({
         url,
@@ -275,12 +276,14 @@ export const getLastInfo = function (opt) {
                         obj.content.push(`<a href="${obj.url}" target="_blank">更多信息直接访问卫健委官网🔗</a>`)
                     }
                     let firstLine = obj.content[0].replace(/（[^（）]{1,2}）|其中|来自/g, '')
+                    if (contentCallBack){
+                        firstLine = contentCallBack(firstLine)
+                    }
                     obj.tags = firstLine.match(/([^,\s，。（）()；、含]*)(\d+)例([^,\s，。（）()；、含]*)/g) || [];
                     obj.tags = obj.tags.map((item, index) => {
 
                         // 清除正则未匹配到的多余数据
                         item = item.replace(/其中|来自/g, '')
-                        item = item.replace(/和新疆/g, '新疆')
 
                         if (/本土|境外|疑似|无症状/.test(item) && index !== 0 && index !== obj.tags.length - 1) {
                             return '<br/>' + item
