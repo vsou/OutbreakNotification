@@ -3,6 +3,7 @@ import https from 'https'
 import http from 'http'
 import path from 'path'
 import fs from 'fs'
+import puppeteer from 'puppeteer'
 
 export const action = async (options) => {
     if (!options.encoding) {
@@ -10,77 +11,161 @@ export const action = async (options) => {
     }
     options.method = options?.method?.toUpperCase() || 'GET'
     return new Promise(resolve => {
-        let urlObj = URL.parse(options.url)
-        let proxy = options.proxy ? URL.parse(options.proxy) : {};
-        let query = getQueryFormat(urlObj.query)
-        query = {
-            ...query,
-            ...options.query,
-        }
-        if (options.method === 'GET') {
-            query = {
-                ...query,
-                ...options.data
-            }
-        }
-        const queryString = getQueryString(query)
-        let requestOptions = {
-            hostname: proxy.hostname ? proxy.hostname : urlObj.hostname,
-            port: proxy.port ? proxy.port : (urlObj.protocol === 'https:' ? 443 : (urlObj.port || 80)),
-            path: options.url,
-            method: options.method,
-            rejectUnauthorized: false,
-            requestCert: true,
-            headers: {
-                // 'Accept-Encoding': 'gzip, deflate',
-                // 'Content-Type': 'Application/json',
-                Referer: options.url,
-                Host: urlObj.hostname,
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36',
-                ...options.headers,
-            }
-        }
-        if (options.method === 'GET' || queryString.length > 0) {
-            requestOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-            requestOptions.headers['Content-Length'] = queryString.length;
-        }
-        let req = (urlObj.protocol === 'https:' ? https : http).request(requestOptions, response => {
-            let result = response.headers['content-type'];
-            let headers = response.headers;
-            let encoding = 'utf-8';
-            if (result) {
-                result = result.match(/charset=([^;\s,]+)/);
-                if (result) {
-                    encoding = result[1];
-                }
-            }
-            let body = []
-            response.on('data', chunk => {
-                body.push(chunk)
-            })
-            response.on('end', () => {
-                body = Buffer.concat(body);
-                body = body.toString()
+        if (options.browserGet) {
+            browserGet(options.url, options.selector).then((html) => {
                 resolve({
                     data: {
-                        body,
-                        headers,
-                        ...response,
-                        options,
+                        body: html,
                     },
                     error: null
                 });
             })
-        })
-        req.write(options.method === 'GET' ? queryString : getQueryString(options.data))
-        req.on('error', error => {
-            console.log('response on error', error)
-            resolve({
-                data: {},
-                error,
+        } else {
+            let urlObj = URL.parse(options.url)
+            let proxy = options.proxy ? URL.parse(options.proxy) : {};
+            let query = getQueryFormat(urlObj.query)
+            query = {
+                ...query,
+                ...options.query,
+            }
+            if (options.method === 'GET') {
+                query = {
+                    ...query,
+                    ...options.data
+                }
+            }
+            const queryString = getQueryString(query)
+            let requestOptions = {
+                hostname: proxy.hostname ? proxy.hostname : urlObj.hostname,
+                port: proxy.port ? proxy.port : (urlObj.protocol === 'https:' ? 443 : (urlObj.port || 80)),
+                path: options.url,
+                method: options.method,
+                headers: {
+                    // 'Accept-Encoding': 'gzip, deflate',
+                    // 'Content-Type': 'Application/json',
+                    Referer: options.url,
+                    Host: urlObj.hostname,
+                    Pragma: 'no-cache',
+                    'Upgrade-Insecure-Requests': 1,
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36',
+                    ...options.headers,
+                }
+            }
+            let cookie = getCookie(urlObj.hostname);
+            if (cookie) {
+                requestOptions.headers.cookie = cookie
+            }
+            if (options.method === 'GET' || queryString.length > 0) {
+                requestOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+                requestOptions.headers['Content-Length'] = queryString.length;
+            }
+            if (urlObj.protocol === 'https:') {
+                requestOptions.rejectUnauthorized = false
+                requestOptions.requestCert = true
+            }
+            let req = (urlObj.protocol === 'https:' ? https : http).request(requestOptions, response => {
+                // saveCookies(response.headers['set-cookie'], urlObj.hostname)
+                let result = response.headers['content-type'];
+                let headers = response.headers;
+                let encoding = 'utf-8';
+                if (result) {
+                    result = result.match(/charset=([^;\s,]+)/);
+                    if (result) {
+                        encoding = result[1];
+                    }
+                }
+                let body = []
+                response.on('data', chunk => {
+                    body.push(chunk)
+                })
+                response.on('end', () => {
+                    body = Buffer.concat(body);
+                    body = body.toString()
+                    // fs.writeFileSync('./log/' + urlObj.hostname + '.html', body, {encoding: 'utf-8'})
+                    resolve({
+                        data: {
+                            body,
+                            headers,
+                            ...response,
+                            options,
+                        },
+                        error: null
+                    });
+                })
             })
-        })
+            req.write(options.method === 'GET' ? queryString : getQueryString(options.data))
+            req.on('error', error => {
+                console.log('response on error', error)
+                resolve({
+                    data: {},
+                    error,
+                })
+            })
+        }
     })
+}
+
+export const browserGet = async (url, selector) => {
+    const browser = await puppeteer.launch({
+        headless: true, // 是否以”无头”的模式运行 chrome, 也就是不显示 UI， 默认为 true
+        ignoreDefaultArgs: ['--enable-automation'],
+        args: ['--start-maximized'],
+        defaultViewport: {
+            width: 1920,
+            height: 960
+        },
+        // devtools: true, // 是否为每个选项卡自动打开DevTools面板， 这个选项只有当 headless 设置为 false 的时候有效
+    })
+    const page = await browser.newPage()
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36');
+    await page.evaluateOnNewDocument(() => {
+        const newProto = navigator.__proto__;
+        delete newProto.webdriver;
+        navigator.__proto__ = newProto;
+    });
+    await page.goto(url)
+    await page.waitForSelector('.banner')
+    let el = await page.$eval('body', e => e.outerHTML);
+    await page.close()
+    await browser.close()
+    return el;
+}
+
+export const saveCookies = (childCookies, host) => {
+    let cookies = {};
+    if (fs.existsSync('./cookies.json')) {
+        cookies = JSON.parse(fs.readFileSync('./cookies.json', {encoding: 'utf-8'}));
+    }
+    if (childCookies) {
+        childCookies.forEach(item => {
+            let result = item.match(/([^=]+)=([^;\s,]*)/);
+            if (!cookies[host]) {
+                cookies[host] = {};
+            }
+            cookies[host][result[1]] = result[2];
+        });
+        for (let i in childCookies) {
+            if (Object.keys(childCookies[i]).length === 0) {
+                delete childCookies[i];
+            }
+        }
+        fs.writeFileSync('./cookies.json', JSON.stringify(cookies, null, 4), {encoding: 'utf-8'})
+    }
+}
+
+export const getCookie = (host) => {
+    let cookies = {}
+    if (fs.existsSync('./cookies.json')) {
+        cookies = JSON.parse(fs.readFileSync('./cookies.json', {encoding: 'utf-8'}));
+    }
+    let cookie = []
+    let item = cookies[host];
+    if (item) {
+        for (let i in item) {
+            cookie.push(`${i}=${item[i]}`);
+        }
+    }
+    return cookie.join('; ');
 }
 
 
@@ -108,10 +193,12 @@ export const getQueryString = (queryObj) => {
 }
 
 export const getLastInfo = function (opt) {
-    const {name, sort, url, listReg, contentReg, timeReg} = opt;
+    const {name, sort, url, browserGet, listSelector, contentSelector, listReg, contentReg, timeReg} = opt;
     return action({
         url,
-    }).then(({data: {body: listBody}}) => {
+        browserGet,
+        selector: listSelector,
+    }).then(({data: {body: listBody, statusCode}}) => {
         let resultList = listBody.match(listReg)
         let obj = {
             name,
@@ -119,21 +206,33 @@ export const getLastInfo = function (opt) {
             parentUrl: url,
             updateTime: new Date().getTime()
         }
-        if (listBody.includes(`setTimeout("location.replace(location.href.split(\\"#\\")[0])",2000);`)) {
+        if (
+            listBody.includes(`setTimeout("location.replace(location.href.split(\\"#\\")[0])",2000);`)
+            || statusCode === 412
+        ) {
             return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    getLastInfo(opt).then(resolve).catch(reject)
-                }, 1000)
+                if (statusCode === 412) {
+                    // console.log('错误码', statusCode, url)
+                    // setTimeout(() => {
+                    //     getLastInfo(opt).then(resolve).catch(reject)
+                    // }, 1000)
+                } else {
+                    setTimeout(() => {
+                        getLastInfo(opt).then(resolve).catch(reject)
+                    }, 1000)
+                }
             })
         }
         if (!resultList) {
-            console.log('没有匹配到列表')
+            console.log(name, '没有匹配到列表')
             return obj;
         }
         obj.url = URL.resolve(url, resultList[1])
         obj.title = resultList[2].replace(/·/g, '')
         return action({
-            url: obj.url
+            url: obj.url,
+            browserGet,
+            selector: contentSelector,
         }).then(({data: {body: contentBody}}) => {
             if (contentBody) {
                 contentBody = contentBody.replace(/<table>[\s\S]+?<\/table>/ig, '')

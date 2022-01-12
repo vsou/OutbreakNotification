@@ -40,7 +40,10 @@ jobs:
     steps:
       # 在 $GITHUB_WORKSPACE 下签出您的存储库，以便您的工作可以访问它
       - uses: actions/checkout@v2
-      - name: node run script
+      - name: install
+        run: yarn install
+
+      - name: build
         run: yarn start
 
       # 使用 runners shell 运行单个命令
