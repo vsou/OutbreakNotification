@@ -70,7 +70,7 @@ let list = [
         url: 'http://wjw.sz.gov.cn/yqxx/',
         listReg: /<div class="wendangListC" style="padding-top:15px;">\s*[\s\S]*?<a href="([^"]+)"[^<>]*>\s*(\d{4}年\d+月\d+日[^<>]+)\s*<\/a>/i,
         contentReg: /<div class="TRS_Editor">([\s\S]+?)<\/div>/i,
-        timeReg: /<span class="cm-con">发布日期：\s*([^<>]+)\s*<\/span>/
+        timeReg: /<span>发布日期：\s*([^<>]+)\s*<\/span>/
     })
 ]
 await buildFile(list, './public/data.json')
