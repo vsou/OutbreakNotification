@@ -255,8 +255,8 @@ export const getLastInfo = function (opt) {
                 if (contentResult) {
                     let c = contentResult[1]
                     c = c.replace(/<span[^<>]*>|<\/span>|\s*<br\s*\/?>\s*|\s*style="[^"]*"/ig, '')
-                    c = c.replace(/\s*<p>(\s|&ensp;|&emsp;)*<\/p>\s*/ig, '')
-                    c = c.replace(/\s*<section>(\s|&ensp;|&emsp;)*<\/section>\s*/ig, '')
+                    c = c.replace(/\s*<p[^<>]*>(\s|&ensp;|&emsp;)*<\/p>\s*/ig, '')
+                    c = c.replace(/\s*<section[^<>]*>(\s|&ensp;|&emsp;)*<\/section>\s*/ig, '')
                     c = c.trim()
                     let contentList = c.match(/<p[^<>]*>([\s\S]+?)<\/p>/ig)
                     if (contentList) {
