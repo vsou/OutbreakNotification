@@ -28,7 +28,7 @@ let list = [
     getLastInfo({
         name: '上海市卫健委 疫情通报',
         url: 'https://wsjkw.sh.gov.cn/xwfb/index.html',
-        listReg: /<ul class="uli16 nowrapli list-date ">\s*<li>\s*<a href="([^"]+)"[^<>]*>\s*([^<>]*新冠[^<>]*?)[\s\t\r]*<\/a>/i,
+        listReg: /<a href="([^"]+)" title="([^"]*\d+年\d+月\d+日[^"]*?确诊病例[^"]*?)"/i,
         contentReg: /<div id="ivs_content" class="Article_content">([\s\S]+?)<\/div>/i,
         timeReg: /<small id="ivs_date" class="Article-time">\s*[（(]?\s*([^<>()（）]+)\s*[)）]?\s*<\/small>/
     }),
